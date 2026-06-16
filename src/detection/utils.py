@@ -161,3 +161,46 @@ def draw_counting_line(frame: np.ndarray, line_y: int, count: int) -> np.ndarray
     )
 
     return annotated
+
+def draw_density(frame: np.ndarray, density_report: dict) -> np.ndarray:
+    """
+    Draw traffic density indicator on the frame.
+
+    Args:
+        frame: BGR image
+        density_report: dict from TrafficDensityAnalyzer.update()
+
+    Returns:
+        Annotated frame
+    """
+    annotated = frame.copy()
+    h, w = annotated.shape[:2]
+
+    level = density_report["level"]
+    score = density_report["density_score"]
+    color = density_report["color"]
+
+    # Draw density bar background (bottom right)
+    bar_x = w - 220
+    bar_y = h - 60
+    cv2.rectangle(annotated, (bar_x, bar_y), (w - 10, h - 10), (30, 30, 30), -1)
+
+    # Draw filled portion of bar
+    bar_width = int(190 * score)
+    cv2.rectangle(
+        annotated,
+        (bar_x + 5, bar_y + 5),
+        (bar_x + 5 + bar_width, h - 15),
+        color, -1
+    )
+
+    # Draw level text
+    cv2.putText(
+        annotated,
+        f"{level} ({score:.0%})",
+        (bar_x + 5, bar_y - 8),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.6, color, 2, cv2.LINE_AA
+    )
+
+    return annotated

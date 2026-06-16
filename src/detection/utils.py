@@ -83,3 +83,46 @@ def draw_stats(frame: np.ndarray, stats: dict) -> np.ndarray:
 def resize_frame(frame: np.ndarray, width: int, height: int) -> np.ndarray:
     """Resize frame to target dimensions."""
     return cv2.resize(frame, (width, height))
+
+def draw_tracks(frame: np.ndarray, tracked_objects: List[dict]) -> np.ndarray:
+    """
+    Draw tracked vehicles with their persistent IDs.
+
+    Args:
+        frame: BGR image
+        tracked_objects: list of tracked object dicts from VehicleTracker
+
+    Returns:
+        Annotated frame
+    """
+    annotated = frame.copy()
+
+    for obj in tracked_objects:
+        x1, y1, x2, y2 = obj["bbox"]
+        track_id = obj["track_id"]
+        label = obj["label"]
+        confidence = obj["confidence"]
+        color = CLASS_COLORS.get(label, (255, 255, 0))
+
+        # Draw bounding box
+        cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2)
+
+        # Draw ID + label
+        text = f"ID{track_id} {label}"
+        (text_w, text_h), _ = cv2.getTextSize(
+            text, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 2
+        )
+        cv2.rectangle(
+            annotated,
+            (x1, y1 - text_h - 8),
+            (x1 + text_w + 4, y1),
+            color, -1
+        )
+        cv2.putText(
+            annotated, text,
+            (x1 + 2, y1 - 4),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.55, (0, 0, 0), 2, cv2.LINE_AA
+        )
+
+    return annotated

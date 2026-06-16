@@ -240,3 +240,76 @@ def draw_speed(frame: np.ndarray, tracked_objects: List[dict]) -> np.ndarray:
         )
 
     return annotated
+
+def draw_zones(frame: np.ndarray, zones: list) -> np.ndarray:
+    """
+    Draw lane zones on the frame.
+
+    Args:
+        frame: BGR image
+        zones: list of LaneZone objects
+
+    Returns:
+        Annotated frame
+    """
+    annotated = frame.copy()
+    h = frame.shape[0]
+
+    for zone in zones:
+        color = (0, 0, 180) if zone.restricted else (180, 180, 180)
+        alpha = 0.15
+
+        overlay = annotated.copy()
+        cv2.rectangle(
+            overlay,
+            (zone.x_start, 0),
+            (zone.x_end, h),
+            color, -1
+        )
+        cv2.addWeighted(overlay, alpha, annotated, 1 - alpha, 0, annotated)
+
+        # Zone boundary line
+        cv2.line(annotated, (zone.x_start, 0), (zone.x_start, h), color, 1)
+
+        # Zone label
+        cv2.putText(
+            annotated, zone.label,
+            (zone.x_start + 5, 20),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5, color, 1, cv2.LINE_AA
+        )
+
+    return annotated
+
+
+def draw_violations(frame: np.ndarray, tracked_objects: List[dict]) -> np.ndarray:
+    """
+    Highlight vehicles with active violations.
+
+    Args:
+        frame: BGR image
+        tracked_objects: list with 'violation' field
+
+    Returns:
+        Annotated frame
+    """
+    annotated = frame.copy()
+
+    for obj in tracked_objects:
+        violation = obj.get("violation")
+        if not violation:
+            continue
+
+        x1, y1, x2, y2 = obj["bbox"]
+
+        # Red flashing box for violation
+        cv2.rectangle(annotated, (x1, y1), (x2, y2), (0, 0, 255), 3)
+        cv2.putText(
+            annotated,
+            f"VIOLATION: {violation}",
+            (x1, y1 - 25),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.55, (0, 0, 255), 2, cv2.LINE_AA
+        )
+
+    return annotated

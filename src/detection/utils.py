@@ -126,3 +126,38 @@ def draw_tracks(frame: np.ndarray, tracked_objects: List[dict]) -> np.ndarray:
         )
 
     return annotated
+
+def draw_counting_line(frame: np.ndarray, line_y: int, count: int) -> np.ndarray:
+    """
+    Draw the counting line and total count on the frame.
+
+    Args:
+        frame: BGR image
+        line_y: y-coordinate of counting line
+        count: total vehicles counted so far
+
+    Returns:
+        Annotated frame
+    """
+    annotated = frame.copy()
+    width = frame.shape[1]
+
+    # Draw the counting line
+    cv2.line(
+        annotated,
+        (0, line_y),
+        (width, line_y),
+        (0, 255, 255),  # yellow
+        2
+    )
+
+    # Draw count label on line
+    text = f"COUNT LINE | Total: {count}"
+    cv2.putText(
+        annotated, text,
+        (10, line_y - 8),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.6, (0, 255, 255), 2, cv2.LINE_AA
+    )
+
+    return annotated

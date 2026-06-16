@@ -28,7 +28,7 @@ tracking:
   iou_threshold: 0.3
 
 counting:
-  line_position: 0.5          # fraction of frame height
+  line_position: 0.8          # fraction of frame height
 
 analytics:
   congestion_threshold: 10    # vehicles in frame = congested

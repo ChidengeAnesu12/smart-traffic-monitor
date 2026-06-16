@@ -204,3 +204,39 @@ def draw_density(frame: np.ndarray, density_report: dict) -> np.ndarray:
     )
 
     return annotated
+
+def draw_speed(frame: np.ndarray, tracked_objects: List[dict]) -> np.ndarray:
+    """
+    Draw speed labels on tracked vehicles.
+
+    Args:
+        frame: BGR image
+        tracked_objects: list with speed_kmh and speeding fields
+
+    Returns:
+        Annotated frame
+    """
+    annotated = frame.copy()
+
+    for obj in tracked_objects:
+        speed = obj.get("speed_kmh")
+        if speed is None:
+            continue
+
+        x1, y1, x2, y2 = obj["bbox"]
+        speeding = obj.get("speeding", False)
+
+        # Red if speeding, white if normal
+        color = (0, 0, 255) if speeding else (255, 255, 255)
+        text = f"{speed} km/h"
+        if speeding:
+            text += " !"
+
+        cv2.putText(
+            annotated, text,
+            (x1, y2 + 18),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.55, color, 2, cv2.LINE_AA
+        )
+
+    return annotated

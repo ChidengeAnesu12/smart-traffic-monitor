@@ -1,0 +1,8 @@
+2026-06-16 14:29:43,094 | INFO | __main__ | Smart Traffic Monitor starting...
+2026-06-16 14:29:43,097 | INFO | __main__ | Device: cpu
+2026-06-16 14:29:43,099 | INFO | __main__ | Model weights: yolov8n.pt
+2026-06-16 14:29:43,099 | INFO | __main__ | Environment OK. Ready for Phase 2.
+2026-06-16 17:33:52,750 | INFO | __main__ | Smart Traffic Monitor starting...
+2026-06-16 17:33:52,750 | INFO | __main__ | Device: cpu
+2026-06-16 17:33:52,750 | INFO | __main__ | Model weights: yolov8n.pt
+2026-06-16 17:33:52,750 | INFO | __main__ | Environment OK. Ready for Phase 2.

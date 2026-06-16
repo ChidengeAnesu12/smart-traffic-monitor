@@ -1,0 +1,42 @@
+# Smart Traffic Monitor - Configuration
+
+model:
+  weights: "yolov8n.pt"       # nano model, good for CPU
+  confidence: 0.4
+  iou_threshold: 0.5
+  device: "cpu"
+
+video:
+  source: "data/raw/sample.mp4"
+  output_path: "data/outputs/result.mp4"
+  frame_width: 1280
+  frame_height: 720
+  fps: 30
+
+classes:
+  # COCO class IDs we care about
+  vehicle_ids: [2, 3, 5, 7]   # car, motorcycle, bus, truck
+  labels:
+    2: "car"
+    3: "motorcycle"
+    5: "bus"
+    7: "truck"
+
+tracking:
+  max_age: 30
+  min_hits: 3
+  iou_threshold: 0.3
+
+counting:
+  line_position: 0.5          # fraction of frame height
+
+analytics:
+  congestion_threshold: 10    # vehicles in frame = congested
+  speed_limit_kmh: 60
+
+database:
+  path: "data/traffic.db"
+
+logging:
+  level: "INFO"
+  log_file: "logs/app.log"

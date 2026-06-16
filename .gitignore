@@ -15,3 +15,5 @@ data/outputs/
 Thumbs.db
 .env
 logs/
+data/processed/sample_frames/
+notebooks/__pycache__/

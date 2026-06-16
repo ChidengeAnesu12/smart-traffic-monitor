@@ -7,7 +7,7 @@ model:
   device: "cpu"
 
 video:
-  source: "data/raw/sample.mp4"
+  source: "data/raw/sample_traffic.mp4"
   output_path: "data/outputs/result.mp4"
   frame_width: 1280
   frame_height: 720

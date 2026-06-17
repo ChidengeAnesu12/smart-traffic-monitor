@@ -17,3 +17,4 @@ Thumbs.db
 logs/
 data/processed/sample_frames/
 notebooks/__pycache__/
+data/traffic.db

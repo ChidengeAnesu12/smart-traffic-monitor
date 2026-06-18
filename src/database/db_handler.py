@@ -3,6 +3,7 @@ Database Handler
 Manages all SQLite database operations for the
 traffic monitoring system.
 """
+
 import sys
 import sqlite3
 import logging
@@ -31,16 +32,16 @@ class DatabaseHandler:
         logger.info(f"DatabaseHandler initialized | path={self.db_path}")
 
     def _connect(self) -> sqlite3.Connection:
-    """Create and configure database connection."""
-    try:
-        conn = sqlite3.connect(self.db_path, check_same_thread=False)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA foreign_keys=ON")
-        return conn
-    except sqlite3.Error as e:
-        logger.error(f"Database connection failed: {e}")
-        sys.exit(1)
+        """Create and configure database connection."""
+        try:
+            conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA foreign_keys=ON")
+            return conn
+        except sqlite3.Error as e:
+            logger.error(f"Database connection failed: {e}")
+            sys.exit(1)
 
     def _create_tables(self) -> None:
         """Create all tables if they don't exist."""

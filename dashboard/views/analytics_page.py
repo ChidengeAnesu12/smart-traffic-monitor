@@ -10,6 +10,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2] / "src"))
 
+from database.db_handler import DatabaseHandler
 from components.charts import (
     render_density_chart,
     render_vehicle_type_chart,

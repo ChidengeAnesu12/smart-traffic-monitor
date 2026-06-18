@@ -12,9 +12,9 @@ sys.path.append(str(Path(__file__).resolve().parent.parent / "src"))
 sys.path.append(str(Path(__file__).resolve().parent))
 
 from components.sidebar import render_sidebar
-from pages.live_processing import render_live_processing
-from pages.analytics_page import render_analytics
-from pages.history_page import render_history
+from views.live_processing import render_live_processing
+from views.analytics_page import render_analytics
+from views.history_page import render_history
 
 # Page config
 st.set_page_config(

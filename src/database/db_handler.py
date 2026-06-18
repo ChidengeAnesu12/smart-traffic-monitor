@@ -10,7 +10,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional
 
-from models import ALL_TABLES
+from database.models import ALL_TABLES
 
 logger = logging.getLogger(__name__)
 

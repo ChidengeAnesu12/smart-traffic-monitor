@@ -40,3 +40,7 @@ database:
 logging:
   level: "INFO"
   log_file: "logs/app.log"
+performance:
+  frame_skip: 1          # process every Nth frame (1 = all frames)
+  display_every: 5       # update dashboard UI every N frames
+  batch_size: 1          # frames per batch

@@ -5,19 +5,23 @@ Handles video upload and processing endpoints.
 
 import sys
 import uuid
-import asyncio
-import tempfile
+import base64
 import logging
+import subprocess
 from pathlib import Path
-from typing import Optional
 
 import yaml
 from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse
 
 sys.path.append(str(Path(__file__).resolve().parents[2] / "src"))
 
 from detection.detector import VehicleDetector
+from detection.utils import (
+    draw_tracks, draw_stats, draw_counting_line,
+    draw_density, draw_speed, draw_zones,
+    draw_violations,
+)
 from tracking.tracker import VehicleTracker
 from counting.counter import VehicleCounter
 from analytics.density import TrafficDensityAnalyzer
@@ -91,6 +95,28 @@ def process_video_job(job_id: str, video_path: str, config: dict):
             heatmap.update(tracked)
             analytics.record_frame(frame_count, tracked_violations, density, counts)
 
+            # Draw annotated frame
+            annotated = draw_zones(frame, lane_detector.zones)
+            annotated = draw_tracks(annotated, tracked_violations)
+            annotated = draw_speed(annotated, tracked_violations)
+            annotated = draw_violations(annotated, tracked_violations)
+            annotated = draw_counting_line(annotated, counter.line_y, counts["total"])
+            annotated = draw_density(annotated, density)
+            annotated = draw_stats(annotated, {
+                "Vehicles": density["vehicle_count"],
+                "Level": density["level"],
+                "Counted": counts["total"],
+            })
+
+            writer.write(annotated)
+
+            # Send preview frame every 3rd frame (keeps payload size reasonable)
+            if frame_count % 3 == 0:
+                _, buffer = cv2.imencode(
+                    ".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 60]
+                )
+                jobs[job_id]["preview_frame"] = base64.b64encode(buffer).decode("utf-8")
+
             frame_count += 1
             jobs[job_id]["progress"] = round(frame_count / total_frames * 100)
             jobs[job_id]["current_frame"] = frame_count
@@ -103,6 +129,28 @@ def process_video_job(job_id: str, video_path: str, config: dict):
 
         cap.release()
         writer.release()
+
+        # Re-encode to browser-compatible H.264 using ffmpeg
+        h264_path = f"data/outputs/{job_id}_output_h264.mp4"
+        try:
+            subprocess.run(
+                [
+                    "ffmpeg", "-y",
+                    "-i", output_path,
+                    "-c:v", "libx264",
+                    "-preset", "fast",
+                    "-pix_fmt", "yuv420p",
+                    "-movflags", "+faststart",
+                    h264_path,
+                ],
+                check=True,
+                capture_output=True,
+            )
+            Path(output_path).unlink()
+            Path(h264_path).rename(output_path)
+            logger.info(f"Job {job_id} re-encoded to H.264 successfully.")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"ffmpeg re-encode failed for {job_id}: {e.stderr.decode()}")
 
         # Save heatmap
         heatmap_path = f"data/outputs/{job_id}_heatmap.jpg"
@@ -159,6 +207,7 @@ async def upload_video(
         "filename": file.filename,
         "counts": {},
         "density": {},
+        "preview_frame": None,
     }
 
     background_tasks.add_task(
@@ -181,3 +230,12 @@ async def get_job_status(job_id: str):
 async def list_jobs():
     """List all processing jobs."""
     return list(jobs.values())
+
+
+@router.get("/output/{job_id}")
+async def get_output_video(job_id: str):
+    """Return the processed output video for a completed job."""
+    path = f"data/outputs/{job_id}_output.mp4"
+    if not Path(path).exists():
+        raise HTTPException(404, "Output video not found.")
+    return FileResponse(path, media_type="video/mp4")

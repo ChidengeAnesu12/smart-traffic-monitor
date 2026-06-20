@@ -6,7 +6,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { uploadVideo, getJobStatus, getHeatmapUrl, Job } from "@/lib/api";
+import { uploadVideo, getJobStatus, getHeatmapUrl, getOutputVideoUrl, Job } from "@/lib/api";
 import StatCard from "@/components/StatCard";
 import DensityBadge from "@/components/DensityBadge";
 
@@ -45,7 +45,7 @@ export default function HomePage() {
       } catch (e) {
         clearInterval(pollRef.current!);
       }
-    }, 2000);
+    }, 1000);
   };
 
   useEffect(() => {
@@ -135,6 +135,18 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* Live Frame Preview */}
+          {job.status === "processing" && job.preview_frame && (
+            <div>
+              <p className="text-gray-500 text-sm mb-2">Live Preview</p>
+              <img
+                src={`data:image/jpeg;base64,${job.preview_frame}`}
+                alt="Processing preview"
+                className="w-full rounded-xl border border-gray-200"
+              />
+            </div>
+          )}
+
           {/* Live Stats */}
           {job.density && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -195,6 +207,16 @@ export default function HomePage() {
                   label="Violations"
                   value={job.summary.total_violations}
                   color="red"
+                />
+              </div>
+
+              {/* Output Video */}
+              <div>
+                <h4 className="text-gray-900 font-semibold mb-3">Processed Output Video</h4>
+                <video
+                  controls
+                  className="rounded-xl w-full border border-gray-200"
+                  src={getOutputVideoUrl(job.job_id)}
                 />
               </div>
 

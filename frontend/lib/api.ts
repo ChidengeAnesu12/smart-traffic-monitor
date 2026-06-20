@@ -20,6 +20,7 @@ export interface Job {
   progress: number;
   filename: string;
   current_frame?: number;
+  preview_frame?: string;
   counts?: {
     total: number;
     up: number;
@@ -117,3 +118,6 @@ export const getVehicles = async (sessionId: string): Promise<Vehicle[]> => {
 
 export const getHeatmapUrl = (jobId: string): string =>
   `${API_BASE}/api/analytics/heatmap/${jobId}`;
+
+export const getOutputVideoUrl = (jobId: string): string =>
+  `${API_BASE}/api/video/output/${jobId}`;

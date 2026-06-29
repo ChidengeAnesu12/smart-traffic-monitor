@@ -8,9 +8,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <>
+    <div className="flex flex-col h-screen">
       <Header onMenuClick={() => setSidebarOpen(true)} />
-      <div className="flex min-h-[calc(100vh-56px)]">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
@@ -19,6 +19,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
-    </>
+    </div>
   );
 }

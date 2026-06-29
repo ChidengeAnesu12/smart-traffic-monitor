@@ -62,7 +62,7 @@ async def live_stream(websocket: WebSocket):
     try:
         # Wait for stream URL from client
         data = await websocket.receive_json()
-        stream_url = data.get("url", config["video"]["source"])
+        stream_url = data.get("url") or config["video"]["source"]
 
         logger.info(f"Opening stream: {stream_url}")
         cap = cv2.VideoCapture(stream_url)
